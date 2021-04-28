@@ -13,7 +13,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
   String _verificationId;
-  final SmsAutoFill _autoFill = SmsAutoFill();
+  String sms_code='';
   bool _isLoading=false;
   String _hintText="+92xxx-xxxxxxx";
   String _labelText="Enter phone number";
@@ -64,7 +64,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   sendVerification() async{
     await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+923095251250',
+      phoneNumber: _phoneNumberController.text.toString(),
       verificationCompleted: (PhoneAuthCredential credential) async {
         print("verification completed");
         await FirebaseAuth.instance.signInWithCredential(credential);
@@ -87,7 +87,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
 
 
-      codeSent: (String verificationId, int resendToken) {
+      codeSent: (String verificationId, int resendToken) async {
         setState(() {
           _isLoading=false;
           _hintText="";
@@ -95,6 +95,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           _authButtonText = "Verify";
         });
         //TODO: autofill the code
+        PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: sms_code);
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        //TODO:Navigate to home screen
+
 
         print("verification sent");
       },
